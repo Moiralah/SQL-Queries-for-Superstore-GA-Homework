@@ -1,0 +1,63 @@
+-- Humaira Idris Homework Submission 02 introduction to SQL
+--1. Which products are made by Xerox(hint: product_name contains xerox)?
+SELECT 	*
+FROM 	products
+WHERE 	LOWER (product_name) LIKE 'xerox%'
+;
+--2. How many countries are in our Western Europe sub-region? ANSWER 6
+SELECT	*
+FROM	regions
+WHERE	sub_region = 'Western Europe'
+;
+SELECT	COUNT (DISTINCT country) AS Total_Western_Europe
+FROM	regions
+WHERE	sub_region = 'Western Europe'
+;
+--3. How many customers in our consumer segment have names that start with the letter “S”? ANSWER 134
+SELECT	*
+FROM	customers
+LIMIT 	10
+;
+SELECT	customer_id, customer_name
+FROM	customers
+WHERE	customer_name LIKE 'S%'
+;
+SELECT	COUNT (DISTINCT customer_id) AS Total_customer_with_S_initial
+FROM	customers
+WHERE	customer_name LIKE 'S%'
+;
+--4. What is the total number of items (not orders) returned with some reason given? ANSWER 31781
+SELECT	*
+FROM	returns
+LIMIT	10
+;
+SELECT 	SUM (return_quantity) AS total_product_return_with_reason
+FROM	returns
+WHERE	reason_returned NOT LIKE 'Not Given'
+;
+SELECT 		SUM(return_quantity) AS total_returned, 
+		reason_returned
+FROM		returns
+GROUP BY	reason_returned
+;-- code check
+--5. How many orders used Standard Shipping and a discount code? ANSWER 397723
+SELECT	*
+FROM	orders
+LIMIT	10
+;
+SELECT 	COUNT(ship_mode),
+	ship_mode,
+	discount
+FROM	orders
+GROUP BY	ship_mode, discount
+;
+SELECT	COUNT (ship_mode) AS total_order_use_std_shipping_and_discount
+FROM	orders
+WHERE	ship_mode LIKE 'Standard Class'
+		AND discount > 0
+;
+SELECT 	ship_mode, discount
+FROM	orders
+WHERE	ship_mode LIKE 'Standard Class'
+		AND discount > 0
+; -- code check

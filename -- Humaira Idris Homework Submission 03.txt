@@ -1,0 +1,90 @@
+-- Humaira Idris Homework Submission 03 Grouping in SQL
+--1. Do our customers prefer a certain type of shipping class? Find the number of orders per ship mode.
+--ANSWER. 401126 which is 40% of customer prefer Standard Class for shipping.
+SELECT	*
+FROM 	orders
+LIMIT 10
+;
+SELECT 	COUNT(order_id) AS total_order_per_ship_mode,
+		ship_mode
+FROM	orders
+GROUP BY	ship_mode
+;
+SELECT	COUNT(*)
+FROM	orders
+;
+--2. How many unique salespeople do we have employed in each region?
+--   How does that compare to the number of unique countries in each region? 
+SELECT	*
+FROM	regions
+;
+SELECT 	region,
+	COUNT (DISTINCT salesperson) AS total_salesperson
+FROM	regions
+GROUP BY	region
+;
+SELECT	region,
+	COUNT (DISTINCT salesperson) 	AS total_salesperson,
+	COUNT (DISTINCT country) 	AS country_by_region,
+	COUNT (DISTINCT country) / COUNT (DISTINCT salesperson) AS salesperson_per_country
+FROM	regions
+GROUP BY region;
+
+--3. Find the most popular reason for returns. ANSWER Wrong Item 15947
+SELECT 	*
+FROM	returns
+LIMIT	10
+;
+SELECT	COUNT(reason_returned) AS total_returned_item,
+		reason_returned
+FROM	returns
+GROUP BY	reason_returned
+ORDER BY	2 DESC
+LIMIT		1
+;
+--4. Bonus: Create a query that groups the total number of products available by vendor. 
+--   The vendors we want to focus on are 3M, Apple, Avery, Cisco, Epson, Hewlett-Packard (HP, Hewlett Packard),
+--   Logitech, Panasonic, Samsung, and Xerox.(Hint: use product_nam column to get the vendor details)
+SELECT 	*
+FROM	products
+LIMIT	10
+;
+SELECT	CASE
+		WHEN LOWER (product_name) LIKE '3m%' THEN '3M'
+		WHEN LOWER (product_name) LIKE 'xerox%' THEN 'Xerox'
+		WHEN LOWER (product_name) LIKE 'apple%' THEN 'Apple'
+		WHEN LOWER (product_name) LIKE 'avery%' THEN 'Avery'
+		WHEN LOWER (product_name) LIKE 'cisco%' THEN 'Cisco'
+		WHEN LOWER (product_name) LIKE 'epson%' THEN 'Epson'
+		WHEN LOWER (product_name) LIKE 'hewlett%' THEN 'HP'
+		WHEN LOWER (product_name) LIKE 'hp%' THEN 'HP'
+		WHEN LOWER (product_name) LIKE 'logitech%' THEN 'Logitech'
+		WHEN LOWER (product_name) LIKE 'panasonic%' THEN 'Panasonic'
+		WHEN LOWER (product_name) LIKE 'samsung%' THEN 'Samsung'
+		ELSE 'other'
+		END AS vendor,
+		COUNT (*) AS Total_Product
+FROM	products
+WHERE	CASE
+		WHEN LOWER (product_name) LIKE '3m%' THEN '3M'
+		WHEN LOWER (product_name) LIKE 'xerox%' THEN 'Xerox'
+		WHEN LOWER (product_name) LIKE 'apple%' THEN 'Apple'
+		WHEN LOWER (product_name) LIKE 'avery%' THEN 'Avery'
+		WHEN LOWER (product_name) LIKE 'cisco%' THEN 'Cisco'
+		WHEN LOWER (product_name) LIKE 'epson%' THEN 'Epson'
+		WHEN LOWER (product_name) LIKE 'hewlett%' THEN 'HP'
+		WHEN LOWER (product_name) LIKE 'hp%' THEN 'HP'
+		WHEN LOWER (product_name) LIKE 'logitech%' THEN 'Logitech'
+		WHEN LOWER (product_name) LIKE 'panasonic%' THEN 'Panasonic'
+		WHEN LOWER (product_name) LIKE 'samsung%' THEN 'Samsung'
+		ELSE 'other'
+		END != 'other'	
+GROUP BY vendor
+ORDER BY 2 ASC
+
+;		
+SELECT 	product_name
+FROM	products
+WHERE	product_name LIKE 'hewlett%' OR
+	product_name LIKE '%HP%' 
+;-- code check

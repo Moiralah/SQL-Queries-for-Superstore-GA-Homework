@@ -1,0 +1,73 @@
+-- Use JOINs and UNIONs to answer the following questions:
+-- 1. Which region saw the most returned items? For what reasons?
+SELECT 	*
+FROM 	returns
+LIMIT 	10
+; -- r1.order_id
+SELECT	*
+FROM 	orders
+LIMIT	10
+;--	o1.order_id o1.region_id
+SELECT	*
+FROM	regions
+WHERE	country_code = 'ID'
+LIMIT	10
+;-- r2.region_id
+SELECT	COUNT(DISTINCT r1.order_id) AS return_item_by_region, 
+		r2.region
+FROM	orders	AS o1
+JOIN	returns	AS r1	ON	o1.order_id = r1.order_id
+JOIN	regions	AS r2	ON	o1.region_id = r2.region_id
+GROUP BY	r2.region
+;
+SELECT	r2.region,
+		r1.reason_returned,
+		COUNT(DISTINCT r1.order_id) AS return_item_by_region		
+FROM	orders	AS o1
+JOIN	returns	AS r1	ON	o1.order_id = r1.order_id
+JOIN	regions	AS r2	ON	o1.region_id = r2.region_id
+GROUP BY	r1.reason_returned, r2.region
+ORDER BY	r2.region DESC
+;
+SELECT	r2.region,
+		reason_returned,
+   		SUM (return_quantity)
+FROM    	regions AS r2
+INNER JOIN 	returns AS r1 ON LEFT(r1.order_id,2) = r2.country_code
+GROUP BY 	reason_returned, r2.region
+ORDER BY 	SUM (return_quantity) DESC
+; --- MUZANI COMPLETE
+SELECT	r2.region,
+   		SUM (return_quantity)
+FROM    	regions AS r2
+INNER JOIN 	returns AS r1 ON LEFT(r1.order_id,2) = r2.country_code
+GROUP BY 	region
+ORDER BY 	SUM (return_quantity) DESC
+; -- AMERICAS 38647
+SELECT	r2.region,
+		SUM(r1.return_quantity) AS return_item_by_region
+FROM	orders	AS o1
+JOIN	returns	AS r1	ON	o1.order_id = r1.order_id
+JOIN	regions	AS r2	ON	o1.region_id = r2.region_id
+GROUP BY	r2.region
+; -- AMERICAS 21518
+SELECT	r2.region,
+		COUNT(DISTINCT r1.order_id) AS return_item_by_region
+FROM	orders	AS o1
+JOIN	returns	AS r1	ON	o1.order_id = r1.order_id
+JOIN	regions	AS r2	ON	o1.region_id = r2.region_id
+GROUP BY	r2.region
+; -- AMERICAS 20274
+SELECT aa.order_id, bb.country_code
+ FROM orders AS aa
+ JOIN regions AS bb ON bb.region_id = aa.region_id
+ ;
+ SELECT aa.order_id, 
+ 		bb.country_code, 
+		bb.region,
+		bb.country,
+		LEFT(aa.order_id,2) AS muz_punya_data
+ FROM orders AS aa
+ JOIN regions AS bb ON bb.region_id = aa.region_id
+ ; -- to proof muzani way is wrong. the country code in ID would be destination country not the return country 
+ 

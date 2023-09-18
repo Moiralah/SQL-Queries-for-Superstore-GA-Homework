@@ -1,0 +1,78 @@
+-- Use subqueries to answer the following questions:
+-- 1. Has our organization sales grown over the years?
+-- Answer. Yes, grown over the year.
+-- group sales by year for inner query
+SELECT	EXTRACT	(year FROM order_date) AS year,
+		SUM (sales),
+		MIN(order_date) AS MIN_DATE,
+		MAX(order_date) AS MAX_DATE
+FROM	orders
+GROUP BY	1
+;
+-- ditch the outlier
+SELECT	*
+FROM	(
+		SELECT	EXTRACT(year from order_date) AS order_year,
+				SUM(sales),
+				MIN(ORDER_DATE) AS MIN_DATE,
+				MAX(ORDER_DATE) AS MAX_DATE
+				FROM	orders
+				GROUP BY	EXTRACT(year from order_date)
+		) AS total_sales_per_year
+WHERE	order_year BETWEEN 2016 AND 2019
+;
+
+-- 2. On average, what percent of salespeople make a sale each month?
+
+SELECT	ROUND (AVG(percentage),2) AS avg_sales_per_salesperson
+FROM	(
+		SELECT		DATE_TRUNC('month', order_date) AS total_months,
+					COUNT(DISTINCT salesperson)* 100 /
+					(
+					SELECT	COUNT(DISTINCT salesperson)
+					FROM	regions
+					) AS percentage
+		FROM		orders 	AS o1
+		JOIN		regions	AS r1	ON	r1.region_id = o1.region_id
+		GROUP BY	1
+		) AS percent_of_salesperson_make_sales_each_MONTH
+;-- ANSWER 99.20
+
+-- 3. What percent of all sales in the United States did returns make up in 2020?
+
+SELECT		SUM (sales) AS sum_sales_US_return_2020,
+FROM		orders 	AS o1
+JOIN		regions	AS r1	ON	r1.region_id = o1.region_id
+JOIN		returns	AS r2	ON	r2.order_id = o1.order_id
+WHERE		r1.country = 'United States'
+AND			EXTRACT(year from r2.return_date) = 2020
+GROUP BY	2
+;-- inner query for total sales in US that are returned in 2020
+SELECT	SUM(sales) AS total_sales_US
+FROM	orders
+WHERE	region_id IN 
+		(
+		SELECT 	region_id
+		FROM	regions
+		WHERE	country = 'United States'
+		)
+;-- outer query for total sales in US
+SELECT	ROUND(
+		(
+		SELECT		SUM (sales) AS sum_sales_US_return_2020
+		FROM		orders 	AS o1
+		JOIN		regions	AS r1	ON	r1.region_id = o1.region_id
+		JOIN		returns	AS r2	ON	r2.order_id = o1.order_id
+		WHERE		r1.country = 'United States'
+		AND			EXTRACT(year from r2.return_date) = 2020
+		) * 100 /
+		SUM(sales) 	, 
+		2)			AS percentage_sum_sales_US_return_2020
+FROM	orders
+WHERE	region_id IN 
+		(
+		SELECT 	region_id
+		FROM	regions
+		WHERE	country = 'United States'
+		)	
+;-- ANSWER 0.42

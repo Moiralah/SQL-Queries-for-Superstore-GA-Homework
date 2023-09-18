@@ -1,0 +1,134 @@
+-- Q1
+-- Has our organization sales grown over the years?
+select EXTRACT(YEAR from order_date) as years, sum(sales)
+from orders
+where EXTRACT(YEAR from order_date) not in (2015, 2020)
+group by years;
+
+
+-- subquery
+SELECT years, sum
+from
+(
+    select EXTRACT(YEAR from order_date) as years, sum(sales)
+    from orders
+    group by years
+
+) as aa
+where years not in (2015, 2020);
+
+
+----------------------------------------------------------
+-- Q2
+-- On average, what percent of salespeople make a sale each month?
+
+-- total of months
+select distinct date_trunc('months', order_date)
+from orders
+limit 100;
+
+-- total of salesperson make a sale each MONTH
+select 
+    date_trunc('months', order_date) as months,
+    count(DISTINCT salesperson)
+from orders as aa
+join regions as bb on aa.region_id = bb.region_id
+group by months;
+
+-- total of salepeople
+select count(DISTINCT salesperson)
+from regions;
+
+-- percent of saleperson make a sale each MONTH
+select 
+    date_trunc('months', order_date) as months,
+    count(DISTINCT salesperson) * 100 /
+    (
+        select count(DISTINCT salesperson)
+        from regions
+    ) AS percentage
+from orders as aa
+join regions as bb on aa.region_id = bb.region_id
+group by months;
+
+-- average percent of salesperson make a sal each MONTH
+SELECT round(avg(percentage),2)
+from
+(
+    select 
+        date_trunc('months', order_date) as months,
+        count(DISTINCT salesperson) * 100 /
+        (
+            select count(DISTINCT salesperson)
+            from regions
+        ) AS percentage
+    from orders as aa
+    join regions as bb on aa.region_id = bb.region_id
+    group by months
+) as aa
+
+
+----------------------------------------------------------
+-- Q3
+-- What percent of all sales in the United States did returns make up in 2020?
+
+-- total sales in US
+select country, sum(sales) as total_sales_in_US
+from orders as aa
+join regions as bb on aa.region_id = bb.region_id
+where country = 'United States'
+group by country;
+
+-- total sales in US that are returned
+select country, sum(sales) as total_sales_in_US_returned
+from orders as aa
+join regions as bb on aa.region_id = bb.region_id
+join returns as cc on aa.order_id = cc.order_id
+where country = 'United States'
+group by country;
+
+-- total sales in US that are returned in 2020
+select country, sum(sales) as total_sales_in_US_returned_2020
+from orders as aa
+join regions as bb on aa.region_id = bb.region_id
+join returns as cc on aa.order_id = cc.order_id
+where
+    country = 'United States' and
+    EXTRACT(year from return_date) = 2020
+group by country;
+
+-- percentage of all sales in US that are returned in 2020
+select
+    country,
+    round(sum(sales) * 100 /
+    (
+        select sum(sales) as total_sales_in_US
+        from orders as aa
+        join regions as bb on aa.region_id = bb.region_id
+        where country = 'United States'
+    ),2) as percent_total_sales_in_US_returned_2020
+from orders as aa
+join regions as bb on aa.region_id = bb.region_id
+join returns as cc on aa.order_id = cc.order_id
+where
+    country = 'United States' and
+    EXTRACT(year from return_date) = 2020
+group by country;
+
+
+select
+    country,
+    round(sum(sales) * 100 /
+    (
+        select sum(sales) as total_sales_in_US
+        from orders as aa
+        join regions as bb on aa.region_id = bb.region_id
+        where country = 'United States'
+    ),2) as percent_total_sales_in_US_returned_2020
+from orders as aa
+join regions as bb on aa.region_id = bb.region_id
+join returns as cc on aa.order_id = cc.order_id
+where
+    country = 'United States' and
+    EXTRACT(year from order_date) = 2020
+group by country;
